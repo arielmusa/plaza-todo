@@ -1,4 +1,4 @@
-import { pool } from "../config/db";
+import { pool } from "../config/db.js";
 import { AppError } from "../middleware/error.middleware.js";
 
 export const authorizeTenantAccess = async (req, res, next) => {
@@ -6,6 +6,16 @@ export const authorizeTenantAccess = async (req, res, next) => {
   const userId = req.user.id;
 
   try {
+    // Check if the tenant exists
+    const [tenantRows] = await pool.execute(
+      `SELECT id FROM tenants WHERE id = ? LIMIT 1`,
+      [tenantId]
+    );
+
+    if (tenantRows.length === 0) {
+      return next(new AppError(404, "Tenant not found"));
+    }
+
     // Check if the user has access to the tenant and get their role
     const [rows] = await pool.execute(
       `SELECT ut.role_id, r.title AS role_name
@@ -17,7 +27,7 @@ export const authorizeTenantAccess = async (req, res, next) => {
     );
     // If no access, return 404
     if (rows.length === 0) {
-      return next(new AppError(404, "Tenant not found"));
+      return next(new AppError(403, "Access to this tenant is forbidden"));
     }
 
     // Attach tenant access info to the request object
