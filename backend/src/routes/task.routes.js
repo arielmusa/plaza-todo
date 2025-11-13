@@ -14,6 +14,7 @@ router.use(authorizeProjectAccess); */
 router.get("/", TaskController.index);
 router.get("/:taskId", TaskController.show);
 router.post("/", TaskController.store);
+router.put("/:taskId", TaskController.update);
 router.delete("/:taskId", TaskController.destroy);
 
 export default router;

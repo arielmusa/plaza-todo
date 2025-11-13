@@ -134,6 +134,62 @@ export const store = async (req, res, next) => {
 };
 
 /**
+ * Update a task in a project
+ * @route PUT /api/tenants/:tenantId/projects/:projectId/tasks/:taskId
+ * @access Private
+ */
+export const update = async (req, res, next) => {
+  const { projectId, taskId } = req.params;
+  const { title, description, status_id } = req.body;
+
+  try {
+    // Check if task exists and belongs to this project
+    const [existing] = await pool.execute(
+      `SELECT id FROM tasks WHERE id = ? AND project_id = ?`,
+      [taskId, projectId]
+    );
+
+    if (existing.length === 0) {
+      return next(new AppError(404, "Task not found"));
+    }
+
+    // validate status_id if provided
+    if (status_id !== undefined) {
+      const [statusRows] = await pool.execute(
+        `SELECT id FROM task_statuses WHERE id = ? AND project_id = ?`,
+        [status_id, projectId]
+      );
+
+      if (statusRows.length === 0) {
+        return next(new AppError(400, "Invalid status_id for this project"));
+      }
+    }
+
+    // Update the task
+    const [result] = await pool.execute(
+      `UPDATE tasks 
+         SET title = COALESCE(?, title),
+             description = COALESCE(?, description),
+             status_id = COALESCE(?, status_id),
+             updated_at = NOW()
+         WHERE id = ? AND project_id = ?`,
+      [title, description, status_id, taskId, projectId]
+    );
+
+    // Fetch the updated task
+    const [rows] = await pool.execute(
+      `SELECT id, title, description, status_id, project_id, created_at, updated_at
+         FROM tasks
+         WHERE id = ?`,
+      [taskId]
+    );
+    res.json(rows[0]);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Delete a task from a project
  * @route DELETE /api/tenants/:tenantId/projects/:projectId/tasks/:taskId
  * @access Private
