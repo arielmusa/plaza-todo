@@ -1,6 +1,8 @@
 import { Outlet } from "react-router";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function DefaultLayout() {
+  const { logout } = useAuth();
   return (
     <>
       <nav className="navbar navbar-light bg-light px-3">
@@ -8,8 +10,7 @@ export default function DefaultLayout() {
         <button
           className="btn btn-outline-danger"
           onClick={() => {
-            localStorage.removeItem("token");
-            window.location.href = "/";
+            logout();
           }}
         >
           Logout
