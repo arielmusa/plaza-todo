@@ -4,6 +4,7 @@ import { authorizeTenantAccess } from "../middleware/tenant.middleware.js";
 import { authorizeProjectAccess } from "../middleware/project.middleware.js";
 import * as ProjectController from "../controllers/project.controller.js";
 import statusRoutes from "./status.routes.js";
+import taskRoutes from "./task.routes.js";
 
 const router = Router({ mergeParams: true });
 
@@ -17,5 +18,6 @@ router.post("/", ProjectController.store);
 
 // Nested routes
 router.use("/:projectId/statuses", authorizeProjectAccess, statusRoutes);
+router.use("/:projectId/tasks", authorizeProjectAccess, taskRoutes);
 
 export default router;
