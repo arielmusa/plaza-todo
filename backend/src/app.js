@@ -1,18 +1,25 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import { AppError, errorHandler } from "./middleware/error.middleware";
+import { AppError, errorHandler } from "./middleware/error.middleware.js";
 import { testConnection } from "./config/db.js";
+
+// Import routes
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
 });
+
+// Use routes
+app.use("/api/auth", authRoutes);
 
 // Handle undefined routes
 app.use((req, res, next) => {
