@@ -11,6 +11,7 @@ router.use(authenticateToken);
 router.get("/", TenantController.index);
 router.get("/:tenantId", TenantController.show);
 router.post("/", TenantController.store);
+router.post("/:tenantId/users", TenantController.addUserToTenant);
 
 // nested routes
 router.use("/:tenantId/projects", projectRoutes);

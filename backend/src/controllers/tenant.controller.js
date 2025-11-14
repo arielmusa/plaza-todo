@@ -101,3 +101,64 @@ export const store = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Add an existing user to a tenant with a specified role.
+ * @route POST /api/tenants/:tenantId/users
+ * @access Private
+ */
+export const addUserToTenant = async (req, res, next) => {
+  const { tenantId } = req.params;
+  const { email, role_id } = req.body;
+
+  try {
+    if (!email) {
+      throw new AppError(400, "Email is required");
+    }
+
+    // Check if tenant exists
+    const [tenantRows] = await pool.query(
+      "SELECT id FROM tenants WHERE id = ?",
+      [tenantId]
+    );
+    if (tenantRows.length === 0) {
+      throw new AppError(404, "Tenant not found");
+    }
+
+    // Check if user exists
+    const [userRows] = await pool.query(
+      "SELECT id FROM users WHERE email = ?",
+      [email]
+    );
+    if (userRows.length === 0) {
+      throw new AppError(404, "User not found");
+    }
+
+    const userId = userRows[0].id;
+
+    // Default role: member (id=3)
+    const assignedRole = role_id ?? 3;
+
+    // Insert into user_tenants
+    // UNIQUE (user_id, tenant_id) eviterà duplicati
+    await pool.query(
+      `INSERT INTO user_tenants (user_id, tenant_id, role_id)
+       VALUES (?, ?, ?)`,
+      [userId, tenantId, assignedRole]
+    );
+
+    return res.status(201).json({
+      message: "User added to tenant",
+      userId,
+      tenantId,
+      role_id: assignedRole,
+    });
+  } catch (error) {
+    // Duplicate entry → user already in tenant
+    if (error.code === "ER_DUP_ENTRY") {
+      return next(new AppError(409, "User is already part of this tenant"));
+    }
+
+    next(error);
+  }
+};
