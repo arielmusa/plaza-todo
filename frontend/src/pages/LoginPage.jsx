@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-import { useNavigate } from "react-router";
-=======
 import { useNavigate, Link } from "react-router-dom";
->>>>>>> Stashed changes
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 
