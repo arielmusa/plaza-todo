@@ -133,7 +133,7 @@ Things i'd improve/add:
 - UI clarity: break pages into components
 - implement swagger UI
 - add users routes and controllers.
--
+- handle errors in frontend
 
 ## API Reference
 

@@ -22,6 +22,7 @@ services:
     env_file: ./backend/.env.example
     volumes:
       - ./backend:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
     depends_on:
@@ -36,6 +37,7 @@ services:
     container_name: plaza_frontend
     volumes:
       - ./frontend:/app
+      - /app/node_modules
     ports:
       - "5173:5173"
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
