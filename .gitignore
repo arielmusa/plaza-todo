@@ -40,7 +40,6 @@ backend/uploads/
 
 # === Docker & Database ===
 db_data/
-*.sql
 docker-compose.override.yml
 
 
